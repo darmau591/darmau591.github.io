@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <title>Contact Us</title>
+</head>
+<body>
+  <nav id="main-nav">
+    <div class="flex-nav container">
+
+      <a class="menu-responsive" href="#"><img class="logo" src="./Resource/logo.svg" alt=""></a>
+      <a class="btn btn-primary menu-responsive" href="#">Menu</a>
+      
+      <ul class="nav-link">
+        <li><a href="#"><img class="logo" src="./Resource/logo.svg" alt=""></a></li>
+        <li><a class="display" href="#">About</a></li>
+        <li class="color-logo"><a href="#">Contact Us</a></li>
+      </ul>
+      <div class="search-bar">
+        <img class="icon" src="./Resource/icon-search.svg" alt="">
+        <a class="btn btn-primary" href="#">Login</a>
+      </div>
+    </div>
+  </nav>
+  <header id="main-header">
+    <div class="container">
+      <div class="tittle-page">
+        <h1>Contact Our Team</h1>
+        <p>We are standing by for your questions, comments or concerns. If there is anything we can do, please reach out and let us know.</p>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section id="section-bg">
+      <div class="container">
+        <div class="content-info">
+          <div class="row">
+            <div class="col-info">
+              <div class="msg-alert">
+                
+                <p><span><img class="icon" src="./Resource/icon-help.svg" alt=""></span> Looks like you forgot to add your name!</p>
+              </div>
+              <h2>Leave A Message</h2>
+              <form action="#">
+                <label for="name">
+                  <h4>Your Name</h4>
+                  <input type="text" placeholder="Full Name" name="name" id="name">
+                </label>
+                <label for="email">
+                  <h4>Your Email</h4>
+                  <input type="email" placeholder="Email Address" name="email" id="email">
+                </label>
+                <label for="contact">
+                  <h4>Select Contact Reason</h4>
+                  <select name="contact-reason"  id="contact-reason">
+                    <option selected="selected" disabled="true">Please Select One</option>
+                    <option value="customer">Customer Service Question</option>
+                    <option value="billing">Billing Question</option>
+                    <option value="website">website Question</option>
+                  </select>
+                </label>
+                <label for="issue">
+                  <h4>Issue Details</h4>
+                  <textarea name="issue" id="issue" cols="30" rows="5" placeholder="Provide as much detail as you can so we can address your issue"></textarea>
+                </label>
+                <div class="submit-btn">
+                  <input class="btn-secondary" type="submit" value="submit Message" >
+                </div>
+              </form>
+            </div>
+            <div class="col-info">
+              <h3 class="subheading">Our Location</h3>
+              <img class="map-image" src="./Resource/map.webp" alt="">
+              <p><span class="subheading">Address:</span> 233 S Wacker Dr, Chicago, IL 60606</p>
+              <p><span class="subheading">Phone:</span> (123) 456-7890</p>
+              <p><span class="subheading">Email:</span> support@citrusmail.com</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer id="main-footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-footer">
+          <img class="logo" src="./Resource/logo.svg" alt="">
+          <h5>All Rights Reserved | © 2017</h5>
+        </div>
+        <div class="col-footer">
+          <h3 class="subheading">About</h3>
+          <ul class="footer-link">
+            <li><a href="#">Features</a></li>
+            <li><a href="#">Pricing</a></li>
+            <li><a href="#">Schedule Demo</a></li>
+          </ul>
+        </div>
+        <div class="col-footer">
+          <h3 class="subheading">Support</h3>
+          <ul class="footer-link">
+            <li><a href="#">Faq</a></li>
+            <li><a href="#">Documentation</a></li>
+            <li><a href="#">API Status</a></li>
+          </ul>
+        </div>
+        <div class="col-footer">
+          <h3 class="subheading">Stay Up To Date</h3>
+          <form action="#" method="get">
+            <input type="text" placeholder="Your email account" name="email" id="email">
+            <input type="submit" name="submit">
+          </form>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

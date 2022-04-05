@@ -1,0 +1,179 @@
+*{
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+body{
+  font-size: 16px;
+
+}
+.container{
+  margin: auto;
+  width: 90%;
+  max-width: 1080px;
+}
+img{
+  width: 100%;
+}
+.logo{
+  width: 40px;
+}
+
+#main-nav{
+  padding: 15px 0;
+  background-color: #2D3E50;
+  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+}
+.flex-nav{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.nav-link{
+  list-style: none;
+}
+.nav-link li{
+  display: inline;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  margin-left: 20px;
+}
+a{
+  text-decoration: none;
+  color: white;
+}
+#main-header{
+  background-color: #2D3E50;
+  color: white;
+  font-family: 'Playfair Display', 'Times New Roman', Times, serif;
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  padding: 50px 0;
+}
+h1{
+  font-size: 3.5rem;
+  font-weight: 700;
+}
+.word-color{
+  color: #3598DB;
+}
+#main-header p{
+  margin: 15px 0 ;
+  width: 55%;
+}
+.btn{
+  border: 2px solid white;
+  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+  padding: 5px 20px ;
+  text-transform: uppercase;
+}
+
+#section-gallery{
+  padding: 20px 0;
+  margin: -60px 0;
+}
+
+.gallery{
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap ;
+}
+.image{
+  width: 280px;
+  margin-top: 15px;
+}
+
+#section-quote{
+  background-color: #3598DB;
+  color: white;
+  padding: 20px 0;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+}
+
+#section-quote p{
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 15px;
+}
+h3{
+  font-family: 'Open Sans',Arial, Helvetica, sans-serif;
+  color: rgba(255, 255 , 255, 0.5);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+#section-info{
+  padding: 50px 0;
+}
+h2{
+  color: #2D3E50;
+  font-size: 1.9rem;
+  text-align: center;
+}
+#section-info p{
+  color: #394f66;
+  font-weight: 300;
+  text-align: justify;
+  margin: 20px auto;
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+#section-contact{
+  background-color: #2D3E50;
+  padding: 30px 0;
+}
+#section-contact h2, p{
+  color: white;
+}
+#section-contact p{
+  max-width: 600px;
+  text-align: left;
+  margin: 15px auto;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+form{
+  max-width:600px ;
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+input[type=text],textarea{
+  background-color: #19212B;
+  color: white;
+  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+  border: none;
+  padding: 5px;
+}
+input[type=text]:active,textarea:active{
+  border: 0.5px solid white;
+}
+input[type=text]{
+  margin: 5px 0;
+  width: 48%;
+}
+button{
+  margin: 10px 0;
+  background-color: #19212B;
+  color: white;
+}
+
+
+
+
+#main-footer{
+  background-color: #19212B;
+  text-align: center;
+  padding: 20px 0;
+}
+h5{
+  color: white;
+  font-size: 0.7rem;
+  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+}
