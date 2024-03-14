@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Lexend+Deca&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
+  <link rel="stylesheet" href="style.css">
+  <title>Frontend Mentor | Stats preview card component</title>
+</head>
+<body>
+  <div class="container">
+    <main>
+      <section class="card">
+        <div class="col">
+
+          <div class="card__body">
+            <h1 class="card__title">  Get <span class="card__title--accent">insights</span> that help your business grow.</h1>
+            <p class="card__text"> Discover the benefits of data analytics and make better decisions regarding revenue, customer 
+              experience, and overall efficiency.</p>
+          </div>
+          <div class="card__footer">
+            <div class="card__features">
+              <h2 class="card__subtitle ">10k+</h2>
+              <p class="card__text card__text--uppercase">companies</p>
+            </div>
+            <div class="card__features">
+              <h2 class="card__subtitle ">314</h2>
+              <p class="card__text card__text--uppercase">templates</p>
+            </div>
+            <div class="card__features">
+              <h2 class="card__subtitle ">12m+</h2>
+              <p class="card__text card__text--uppercase">queries</p>
+            </div>
+          </div>
+        </div>
+        <div class="overlay-color">
+          <picture class="card__img">
+            <source media="(max-width: 450px)" srcset="./images/image-header-mobile.jpg">
+            <img class="container__img" src="./images/image-header-desktop.jpg" alt="">
+          </picture>
+        </div>
+        
+      </section>
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,120 @@
+*{
+  box-sizing: border-box;
+  font-size: 15px;
+  --bg-card-1:hsl(31, 77%, 52%);
+  --bg-card-2:hsl(184, 100%, 22%);
+  --bg-card-3:hsl(179, 100%, 13%);
+  --card-body:hsla(0, 0%, 100%, 0.75);
+  --title-color:hsl(0, 0%, 95%);
+}
+
+body{
+  
+  display: grid;
+  height: 100vh;
+  place-content: center;
+
+}
+
+.container{
+  width: 95%;
+  max-width: 1440px;
+  margin: auto;
+  overflow: hidden;
+
+}
+
+.row{
+  display: flex;
+  border-radius: 1rem;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+.color-1{
+  background-color: var(--bg-card-1);
+  border-radius: 0.5rem 0 0 0.5rem;
+
+}
+.color-2{
+  background-color: var(--bg-card-2);
+
+}
+.color-3{
+  background-color: var(--bg-card-3);
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.card{
+  padding: 2rem 2.3rem;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 20%;
+}
+.card__img{
+  width: 3.5rem;
+}
+.card__title{
+  font-family: "Big Shoulders Display", Arial, Helvetica, sans-serif ;
+  font-weight: 700;
+  font-size: 1.8rem;
+  letter-spacing: 0.05rem;
+  text-transform: uppercase;
+  color: var(--title-color);
+  margin: 0;
+}
+
+.card__body{
+  font-family: "Lexend Deca", Arial, Helvetica, sans-serif;
+  color: var(--card-body);
+  font-size: 0.rem;
+  line-height: 1.5;
+  
+}
+
+.card__button{
+  border: none;
+  border-radius: 2rem;
+  padding: 0.5rem 1.5rem;
+  font-family: "Lexend Deca", Arial, Helvetica, sans-serif;
+  font-size: 0.7rem;
+  background-color: var(--title-color);
+  cursor: pointer;
+  width: fit-content;
+}
+.card__button--color-1{
+  color: var(--bg-card-1);
+}
+.card__button--color-2{
+  color: var(--bg-card-2);
+}
+.card__button--color-3{
+  color: var(--bg-card-3);
+}
+
+.card__button--active:hover, .card__button--active:active{
+  border: 1px solid white;
+  color: white;
+  background-color: hsla(0, 0%, 100%, 0.1);
+}
+
+@media screen and (max-width:560px) {
+  .row{
+    flex-direction: column;
+  }
+  .card{
+    width: 100%;
+  }
+
+  .color-1{
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+  .color-3{
+    border-radius: 0 0rem 0.5rem 0.5rem;
+  }
+  
+}
+
+
