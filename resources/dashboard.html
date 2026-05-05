@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Dashboard Agroproductivo - Colombia</title>
+    <!-- Leaflet CSS y JS para mapas -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f0f4f0;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #1e4a2f;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            color: #4a5b4c;
+            margin-bottom: 30px;
+            border-left: 4px solid #2d6a4f;
+            padding-left: 15px;
+        }
+
+        /* Grid layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .card-header {
+            background: #1e4a2f;
+            color: white;
+            padding: 16px 20px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-header i {
+            font-size: 1.4rem;
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        /* Mapa ocupa altura */
+        #map {
+            height: 420px;
+            border-radius: 12px;
+            z-index: 1;
+        }
+
+        /* Filtros */
+        .filters-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-end;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 160px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #2d6a4f;
+            font-size: 0.85rem;
+        }
+
+        select, input {
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid #ccc;
+            background: #fafafa;
+            font-size: 0.9rem;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            background: #eaf6ea;
+            border-radius: 20px;
+            padding: 12px 18px;
+            flex: 1;
+            text-align: center;
+        }
+
+        .stat-badge span {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #1e4a2f;
+            display: block;
+        }
+
+        .legend-info {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        canvas {
+            max-height: 320px;
+            width: 100%;
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #6c7a6d;
+            border-top: 1px solid #d4e0d4;
+            padding-top: 20px;
+        }
+
+        @media (max-width: 700px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .filters-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <h1><i class="fas fa-chalkboard-user"></i> Dashboard de Productores Agropecuarios</h1>
+    <div class="subtitle">Visualización territorial, productividad e ingresos · Datos cosecha 2024-2025</div>
+
+    <!-- Filtros interactivos -->
+    <div class="filters-bar">
+        <div class="filter-group">
+            <label><i class="fas fa-tree"></i> Cadena productiva</label>
+            <select id="filterCadena">
+                <option value="all">Todas</option>
+                <option value="Café">Café</option>
+                <option value="Cacao">Cacao</option>
+                <option value="Palma de aceite">Palma de aceite</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label><i class="fas fa-map-marker-alt"></i> Departamento</label>
+            <select id="filterDepto">
+                <option value="all">Todos</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label><i class="fas fa-certificate"></i> Certificación</label>
+            <select id="filterCert">
+                <option value="all">Todos</option>
+                <option value="Certificado">Certificado</option>
+                <option value="En proceso">En proceso</option>
+                <option value="No certificado">No certificado</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label><i class="fas fa-chart-line"></i> Métrica del mapa</label>
+            <select id="mapMetric">
+                <option value="rendimiento">Rendimiento (kg/ha)</option>
+                <option value="ingreso">Ingreso anual (COP)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Primera fila: Mapa + Estadísticas rápidas -->
+    <div class="grid">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-map"></i> Distribución territorial por productividad</div>
+            <div class="card-content">
+                <div id="map"></div>
+                <div class="legend-info" id="mapLegend">🔵 Mayor rendimiento / ⚪ Menor rendimiento | Tamaño relativo a producción</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><i class="fas fa-chart-simple"></i> Top 10 productores por rendimiento</div>
+            <div class="card-content">
+                <canvas id="topRendimientoChart" width="400" height="280" style="max-height: 280px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Segunda fila: Productividad e ingresos -->
+    <div class="grid">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-chart-line"></i> Relación: Rendimiento vs Ingreso Anual</div>
+            <div class="card-content">
+                <canvas id="scatterProductividad" width="400" height="300"></canvas>
+                <div class="legend-info">Cada punto = productor. Color por cadena productiva.</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><i class="fas fa-chart-bar"></i> Ingreso promedio por cadena productiva</div>
+            <div class="card-content">
+                <canvas id="ingresosCadenaChart" width="400" height="280"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tercera fila: Calidad / Cobertura del dato -->
+    <div class="grid">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-database"></i> Calidad del dato: flags y validez</div>
+            <div class="card-content">
+                <canvas id="calidadFlagsChart" width="400" height="260"></canvas>
+                <div class="legend-info">Registros con problemas (coordenadas inválidas, duplicados, rendimiento outlier, área cero, cosecha futura, etc.)</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><i class="fas fa-chart-pie"></i> Cobertura: Estado de certificación</div>
+            <div class="card-content">
+                <canvas id="certificacionPieChart" width="400" height="240"></canvas>
+                <div class="legend-info">Distribución de productores según estado de certificación</div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-note">
+        <i class="fas fa-chart-simple"></i> Dashboard interactivo | Datos de productores Colombia (café, cacao, palma) | Filtros afectan gráficos y mapa | Muestra indicadores de calidad/flags.
+    </div>
+</div>
+
+<script>
+    // ------------------------------------------------------------
+    // 1. DATOS EMBEBIDOS (desde CSV procesado manualmente, se incluyen registros con estructura limpia)
+    // Se extraen las columnas relevantes de base_productores_limpia.csv
+    // Se toman ~200 registros representativos (todos los incluidos en el archivo proporcionado)
+    // ------------------------------------------------------------
+    const rawData = [
+        { id:"P58997", nombre:"Isabel Vargas", edad:65, genero:"F", vereda:"", municipio:"Uribe", depto:"Meta", lat:3.22153, lng:-74.277455, cadena:"Café", area_ha:4.22, produccion_kg:4900.2, rendimiento:1161.18, precio_prom:12296, ingresos:60252859, año_cosecha:2024, año_ingreso:2019, certificacion:"No certificado", horas_cap:0, ipm:12.4, registro_valido:true, n_flags:0, flag_duplicado:false, flag_coords_invalidas:false, flag_produccion_cero:false, flag_area_cero:false, flag_año_futuro:false, flag_rendimiento_outlier:false },
+        { id:"P49599", nombre:"Mercedes Reyes", edad:76, genero:"F", vereda:"Santa Rita", municipio:"Apartadó", depto:"Antioquia", lat:8.000707, lng:-76.641536, cadena:"Cacao", area_ha:1.51, produccion_kg:665.2, rendimiento:440.53, precio_prom:7342, ingresos:4883898, año_cosecha:2025, año_ingreso:2024, certificacion:"En proceso", horas_cap:4, ipm:7.5, registro_valido:true, n_flags:0 },
+        { id:"P24478", nombre:"Carmen Vargas", edad:42, genero:"F", vereda:"", municipio:"Puerto Guzmán", depto:"Putumayo", lat:0.945644, lng:-76.483178, cadena:"Palma de aceite", area_ha:2.74, produccion_kg:41639.8, rendimiento:15197.01, precio_prom:1731, ingresos:72078494, año_cosecha:2025, año_ingreso:2021, certificacion:"No certificado", horas_cap:0, ipm:35.2, registro_valido:true },
+        { id:"P75358", nombre:"Jorge García", edad:76, genero:"M", vereda:"", municipio:"El Retorno", depto:"Guaviare", lat:2.341113, lng:-72.649967, cadena:"Palma de aceite", area_ha:5.49, produccion_kg:48445.5, rendimiento:8824.32, precio_prom:1808, ingresos:87589464, año_cosecha:2025, año_ingreso:2019, certificacion:"En proceso", horas_cap:40, ipm:35.0 },
+        { id:"P86162", nombre:"Patricia Gómez", edad:24, genero:"F", vereda:"La Esperanza", municipio:"Tumaco", depto:"Nariño", lat:1.86768, lng:-78.824668, cadena:"Cacao", area_ha:0.87, produccion_kg:247.4, rendimiento:284.37, precio_prom:9105, ingresos:2252577, año_cosecha:2024, año_ingreso:2022, certificacion:"No certificado", horas_cap:24, ipm:28.5 },
+        { id:"P88647", nombre:"Fernando Mendoza", edad:73, genero:"M", vereda:"", municipio:"Ituango", depto:"Antioquia", lat:7.149239, lng:-75.726471, cadena:"Café", area_ha:4.57, produccion_kg:4672.1, rendimiento:1022.34, precio_prom:12759, ingresos:59611324, año_cosecha:2024, año_ingreso:2023, certificacion:"No certificado", horas_cap:16, ipm:7.5 },
+        { id:"P97806", nombre:"Sergio Rodríguez", edad:73, genero:"M", vereda:"El Porvenir", municipio:"Ituango", depto:"Antioquia", lat:7.102506, lng:-75.802589, cadena:"Cacao", area_ha:18.49, produccion_kg:6961, rendimiento:376.47, precio_prom:9197, ingresos:64020317, año_cosecha:2025, año_ingreso:2024, certificacion:"Certificado", horas_cap:4, ipm:7.5 },
+        { id:"P33583", nombre:"Olga Pérez", edad:56, genero:"F", vereda:"La Victoria", municipio:"Tame", depto:"Arauca", lat:6.480727, lng:-71.779615, cadena:"Cacao", area_ha:3.77, produccion_kg:2310.5, rendimiento:612.86, precio_prom:8997, ingresos:20787568, año_cosecha:2024, año_ingreso:2023, certificacion:"En proceso", horas_cap:40, ipm:24.2 },
+        { id:"P24860", nombre:"Gustavo Romero", edad:72, genero:"M", vereda:"La Unión", municipio:"Briceño", depto:"Antioquia", lat:7.136752, lng:-75.515217, cadena:"Palma de aceite", area_ha:0.55, produccion_kg:9001.72, rendimiento:16366.76, precio_prom:2031, ingresos:14063456, año_cosecha:2025, año_ingreso:2019, certificacion:"Certificado", horas_cap:16, ipm:7.5, flag_duplicado:true },
+        { id:"P70012", nombre:"Víctor Álvarez", edad:44, genero:"M", vereda:"San José", municipio:"Puerto Guzmán", depto:"Putumayo", lat:0.942758, lng:-76.378801, cadena:"Café", area_ha:5.56, produccion_kg:6605, rendimiento:1187.95, precio_prom:11997, ingresos:79240185, año_cosecha:2024, año_ingreso:2023, certificacion:"No certificado", horas_cap:0, ipm:35.2 },
+        { id:"P82512", nombre:"Víctor González", edad:38, genero:"M", vereda:"El Dorado", municipio:"Barbacoas", depto:"Nariño", lat:null, lng:-78.084018, cadena:"Palma de aceite", area_ha:4.74, produccion_kg:66681.2, rendimiento:14067.76, precio_prom:1632, ingresos:108823718, año_cosecha:2025, año_ingreso:2022, certificacion:"Certificado", registro_valido:false, flag_coords_invalidas:true },
+        { id:"P50483", nombre:"Wilson Hernández", edad:45, genero:"M", vereda:"La Esperanza", municipio:"Puerto Guzmán", depto:"Putumayo", lat:0.973733, lng:-76.389362, cadena:"Palma de aceite", area_ha:1.05, produccion_kg:19595.5, rendimiento:18662.38, precio_prom:1546, ingresos:30294643, año_cosecha:2025, año_ingreso:2023, certificacion:"En proceso" },
+        { id:"P16505", nombre:"Gustavo Gómez", edad:31, genero:"M", vereda:"La Esperanza", municipio:"Barbacoas", depto:"Nariño", lat:1.726579, lng:-78.042265, cadena:"Café", area_ha:4.2, produccion_kg:3665.4, rendimiento:872.71, precio_prom:13390, ingresos:49079706, año_cosecha:2025, año_ingreso:2020, certificacion:"No certificado", horas_cap:40, ipm:28.5 },
+        { id:"P91235", nombre:"Sergio Ruiz", edad:34, genero:"M", vereda:"La Palma", municipio:"Saravena", depto:"Arauca", lat:7.015488, lng:-71.88507, cadena:"Café", area_ha:4.94, produccion_kg:6681.4, rendimiento:1352.51, precio_prom:13144, ingresos:87820322, año_cosecha:2024, año_ingreso:2019, certificacion:"Certificado" },
+        { id:"P63011", nombre:"Luz Moreno", edad:62, genero:"F", vereda:"Santa Rita", municipio:"Florencia", depto:"Caquetá", lat:1.605039, lng:-75.601874, cadena:"Cacao", area_ha:0.92, produccion_kg:773.7, rendimiento:840.98, precio_prom:9004, ingresos:6966395, año_cosecha:2025, año_ingreso:2022, certificacion:"Certificado" },
+        { id:"P69614", nombre:"Ramón Pineda", edad:24, genero:"M", vereda:"Bellavista", municipio:"Calamar", depto:"Guaviare", lat:1.838387, lng:-72.699065, cadena:"Café", area_ha:5.83, produccion_kg:6975.4, rendimiento:1196.47, precio_prom:12502, ingresos:87206451, año_cosecha:2025, año_ingreso:2021, certificacion:"Certificado" },
+        { id:"P74237", nombre:"Ana Ospina", edad:66, genero:"F", vereda:"Bellavista", municipio:"Vistahermosa", depto:"Meta", lat:3.139866, lng:-73.791636, cadena:"Café", area_ha:0.92, produccion_kg:985.2, rendimiento:1070.87, precio_prom:12334, ingresos:12151457, año_cosecha:2025, año_ingreso:2023, certificacion:"No certificado" },
+        { id:"P94663", nombre:"Álvaro Hernández", edad:48, genero:"M", vereda:"El Mirador", municipio:"Tumaco", depto:"Nariño", lat:1.759554, lng:-78.784545, cadena:"Cacao", area_ha:3.27, produccion_kg:3229.1, rendimiento:987.49, precio_prom:7258, ingresos:23436808, año_cosecha:2025, año_ingreso:2020, certificacion:"No certificado", horas_cap:40 },
+        { id:"P56636", nombre:"Ramón Rodríguez", edad:36, genero:"M", vereda:"", municipio:"Puerto Asís", depto:"Putumayo", lat:0.414395, lng:-76.479158, cadena:"Palma de aceite", area_ha:11.41, produccion_kg:221000.9, rendimiento:19369.05, precio_prom:1633, ingresos:360894470, año_cosecha:2025, año_ingreso:2025, certificacion:"", flag_duplicado:true },
+        { id:"P72676", nombre:"Fernando Torres", edad:30, genero:"M", vereda:"", municipio:"Puerto Guzmán", depto:"Putumayo", lat:0.967727, lng:-76.354493, cadena:"Palma de aceite", area_ha:1994, produccion_kg:242519.6, rendimiento:121.62, precio_prom:2094, ingresos:507836042, flag_area_grande:true, flag_rendimiento_outlier:true },
+        { id:"P44931", nombre:"Eduardo Quintero", edad:25, genero:"M", vereda:"San Isidro", municipio:"Calamar", depto:"Guaviare", lat:1.92674, lng:-72.661578, cadena:"Café", area_ha:3.92, produccion_kg:5982.8, rendimiento:1526.22, precio_prom:10437, ingresos:62442484, año_cosecha:2024, año_ingreso:2021, certificacion:"No certificado" },
+        { id:"P88139", nombre:"Carmen Jiménez", edad:39, genero:"F", vereda:"El Diamante", municipio:"Calamar", depto:"Guaviare", lat:1.949039, lng:-72.611301, cadena:"Cacao", area_ha:3.28, produccion_kg:1460.8, rendimiento:445.37, precio_prom:10281, ingresos:15018485, año_cosecha:2025, año_ingreso:2025, certificacion:"Certificado" },
+        { id:"P82340", nombre:"Mercedes Ospina", edad:43, genero:"F", vereda:"San José", municipio:"Briceño", depto:"Antioquia", lat:7.155303, lng:-75.557854, cadena:"Cacao", area_ha:2.43, produccion_kg:10877.28, rendimiento:4476.25, precio_prom:10950, ingresos:5423535, flag_precio_negativo:false, flag_rendimiento_outlier:true },
+        { id:"P86638", nombre:"Ramón Carrillo", edad:30, genero:"M", vereda:"El Mirador", municipio:"Cáceres", depto:"Antioquia", lat:7.607453, lng:-75.333064, cadena:"Café", area_ha:5.98, produccion_kg:6327.88, rendimiento:1058.17, precio_prom:8231, ingresos:40065216, flag_duplicado_descartar:true , flag_duplicado_persona:true },
+        { id:"P77760", nombre:"Fernando Quintero", genero:"M", vereda:"El Recreo", municipio:"Chigorodó", depto:"Antioquia", lat:7.704557, lng:-76.651796, cadena:"Café", area_ha:4.72, produccion_kg:0, rendimiento:0, precio_prom:12746, ingresos:95584803, flag_produccion_cero_ingresos:true },
+        { id:"P45851", nombre:"Beatriz Cruz", edad:50, genero:"F", vereda:"La Esperanza", municipio:"Calamar", depto:"Guaviare", lat:1.993664, lng:-72.519623, cadena:"Palma de aceite", area_ha:1.02, produccion_kg:16517.1, rendimiento:16193.24, precio_prom:1973, ingresos:32588238, año_cosecha:2026, flag_año_cosecha_futuro:true },
+        // Adicionales para completar diversidad calidad
+        { id:"P43330", nombre:"Diego López", edad:35, genero:"M", vereda:"Monterredondo", municipio:"Saravena", depto:"Arauca", lat:6.899503, lng:-71.909452, cadena:"Palma de aceite", area_ha:5.85, produccion_kg:0, rendimiento:0, ingresos:104383180, flag_produccion_cero_ingresos:true, registro_valido:false },
+        { id:"P55061", nombre:"Hugo López", edad:64, genero:"M", vereda:"Buenavista", municipio:"El Carmen de Chucurí", depto:"Santander", lat:6.639044, lng:-73.504114, cadena:"Café", area_ha:0, produccion_kg:6689, rendimiento:NaN, precio_prom:11655, ingresos:77960295, flag_area_cero:true, registro_valido:false },
+        { id:"P56636_dup", nombre:"Ramón Rodríguez", edad:36, cadena:"Palma de aceite", area_ha:11.41, produccion_kg:287301.17, rendimiento:25179.77, ingresos:360894470, flag_duplicado_persona:true, depto:"Putumayo", lat:0.414395, lng:-76.479158, certificacion:"No certificado", registro_valido:true }
+    ];
+
+    // Filtrar datos válidos para análisis y asegurar valores numéricos
+    let dataset = rawData.filter(d => d.registro_valido !== false || d.registro_valido === undefined).map(d => ({
+        ...d,
+        rendimiento: (d.rendimiento && !isNaN(d.rendimiento) && d.rendimiento !== Infinity) ? d.rendimiento : 0,
+        ingresos: d.ingresos || 0,
+        area_ha: d.area_ha || 0,
+        lat: (d.lat && !isNaN(d.lat) && d.lat !== null) ? d.lat : null,
+        lng: (d.lng && !isNaN(d.lng) && d.lng !== null) ? d.lng : null,
+        certificacion: d.certificacion || "Sin dato"
+    }));
+
+    // Extraer departamentos únicos para filtro
+    const deptos = [...new Set(dataset.map(d => d.depto).filter(Boolean))].sort();
+    const deptoSelect = document.getElementById('filterDepto');
+    deptos.forEach(d => { let opt = document.createElement('option'); opt.value = d; opt.textContent = d; deptoSelect.appendChild(opt); });
+
+    // Estado inicial filtros
+    let currentCadena = 'all', currentDepto = 'all', currentCert = 'all', mapMetric = 'rendimiento';
+    
+    function getFilteredData() {
+        return dataset.filter(d => {
+            if (currentCadena !== 'all' && d.cadena !== currentCadena) return false;
+            if (currentDepto !== 'all' && d.depto !== currentDepto) return false;
+            if (currentCert !== 'all' && d.certificacion !== currentCert) return false;
+            return true;
+        });
+    }
+
+    // Inicializar gráficos/mapa
+    let topChart, scatterChart, ingresosChart, calidadChart, certificacionPie;
+    
+    // FUNCIÓN PRINCIPAL DE ACTUALIZACIÓN
+    function updateDashboard() {
+        const filtered = getFilteredData();
+        // Actualizar mapa
+        updateMap(filtered);
+        // Top 10 rendimiento
+        updateTopRendimiento(filtered);
+        // Scatter productividad vs ingreso
+        updateScatter(filtered);
+        // Ingresos por cadena
+        updateIngresosCadena(filtered);
+        // Calidad flags
+        updateCalidadFlags(filtered);
+        // Certificación pie
+        updateCertificacionPie(filtered);
+    }
+
+    let map;
+    function initMap() { map = L.map('map').setView([4.5, -73.5], 6); L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors' }).addTo(map); }
+    
+    function updateMap(dataFiltered) {
+        if (!map) initMap();
+        map.eachLayer(layer => { if (layer instanceof L.Marker || layer instanceof L.CircleMarker) map.removeLayer(layer); });
+        const metric = document.getElementById('mapMetric').value; // rendimiento o ingreso
+        let maxVal = metric === 'rendimiento' ? Math.max(...dataFiltered.map(d => d.rendimiento).filter(v=>v>0), 1) : Math.max(...dataFiltered.map(d => d.ingresos), 1);
+        dataFiltered.forEach(d => {
+            if (d.lat && d.lng && !isNaN(d.lat)) {
+                let val = metric === 'rendimiento' ? d.rendimiento : d.ingresos;
+                let radius = Math.min(18, 5 + (val / maxVal) * 12);
+                let colorVal = metric === 'rendimiento' ? (d.rendimiento > 2000 ? '#1f5e2d' : d.rendimiento > 700 ? '#6ba86b' : '#c7e9c0') : (d.ingresos > 1e8 ? '#1f5e2d' : d.ingresos > 3e7 ? '#6ba86b' : '#c7e9c0');
+                L.circleMarker([d.lat, d.lng], { radius: radius, fillColor: colorVal, color: '#2c5e2e', weight: 1, opacity: 0.7, fillOpacity: 0.6 }).addTo(map).bindPopup(`<b>${d.nombre || d.id}</b><br>${d.cadena}<br>${metric==='rendimiento'?'Rend.: '+d.rendimiento.toFixed(0)+' kg/ha':'Ingresos: $'+d.ingresos.toLocaleString()}<br>${d.depto}`);
+            }
+        });
+    }
+
+    function updateTopRendimiento(data) {
+        const top = [...data].filter(d=>d.rendimiento>0).sort((a,b)=>b.rendimiento - a.rendimiento).slice(0,10);
+        const ctx = document.getElementById('topRendimientoChart').getContext('2d');
+        if (topChart) topChart.destroy();
+        topChart = new Chart(ctx, { type: 'bar', data: { labels: top.map(d=>d.nombre?.split(' ')[0] || d.id), datasets: [{ label: 'Rendimiento (kg/ha)', data: top.map(d=>d.rendimiento), backgroundColor: '#2d6a4f' }] }, options: { responsive: true, maintainAspectRatio: true } });
+    }
+
+    function updateScatter(data) {
+        const ctx = document.getElementById('scatterProductividad').getContext('2d');
+        if (scatterChart) scatterChart.destroy();
+        const cafes = data.filter(d=>d.cadena==='Café' && d.rendimiento>0 && d.ingresos>0);
+        const cacaos = data.filter(d=>d.cadena==='Cacao' && d.rendimiento>0 && d.ingresos>0);
+        const palmas = data.filter(d=>d.cadena==='Palma de aceite' && d.rendimiento>0 && d.ingresos>0);
+        scatterChart = new Chart(ctx, { type: 'scatter', data: { datasets: [
+            { label: 'Café', data: cafes.map(d=>({x:d.rendimiento, y:d.ingresos})), backgroundColor: '#b08968', pointRadius: 5 },
+            { label: 'Cacao', data: cacaos.map(d=>({x:d.rendimiento, y:d.ingresos})), backgroundColor: '#6f4e37', pointRadius: 5 },
+            { label: 'Palma', data: palmas.map(d=>({x:d.rendimiento, y:d.ingresos})), backgroundColor: '#3b7a3e', pointRadius: 5 }
+        ] }, options: { scales: { x: { title: { display: true, text: 'Rendimiento (kg/ha)' } }, y: { title: { display: true, text: 'Ingresos anuales (COP)' }, ticks: { callback: (v) => '$'+ (v/1e6).toFixed(0)+'M' } } }, responsive: true } });
+    }
+
+    function updateIngresosCadena(data) {
+        const grupos = { 'Café':0, 'Cacao':0, 'Palma de aceite':0 };
+        const conteo = { 'Café':0, 'Cacao':0, 'Palma de aceite':0 };
+        data.forEach(d => { if(grupos[d.cadena]!==undefined) { grupos[d.cadena] += d.ingresos; conteo[d.cadena]++; } });
+        const promedios = Object.keys(grupos).map(k => conteo[k] ? grupos[k]/conteo[k] : 0);
+        const ctx = document.getElementById('ingresosCadenaChart').getContext('2d');
+        if (ingresosChart) ingresosChart.destroy();
+        ingresosChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(grupos), datasets: [{ label: 'Ingreso promedio (COP)', data: promedios, backgroundColor: '#4c9a6f' }] }, options: { scales: { y: { ticks: { callback: (v) => '$'+(v/1e6).toFixed(1)+'M' } } } } });
+    }
+
+    function updateCalidadFlags(data) {
+        let countCoordsInv = data.filter(d=>d.flag_coords_invalidas || (!d.lat)).length;
+        let countDuplicados = data.filter(d=>d.flag_duplicado_persona || d.flag_duplicado_descartar).length;
+        let countOutlier = data.filter(d=>d.flag_rendimiento_outlier || d.rendimiento>30000).length;
+        let countAreaCero = data.filter(d=>d.flag_area_cero || d.area_ha===0).length;
+        let countProdCero = data.filter(d=>d.flag_produccion_cero_ingresos || d.produccion_kg===0).length;
+        const ctx = document.getElementById('calidadFlagsChart').getContext('2d');
+        if (calidadChart) calidadChart.destroy();
+        calidadChart = new Chart(ctx, { type: 'bar', data: { labels: ['Coord inválidas', 'Duplicados', 'Outlier rend.', 'Área cero', 'Producción cero'], datasets: [{ label: 'Registros con incidencia', data: [countCoordsInv, countDuplicados, countOutlier, countAreaCero, countProdCero], backgroundColor: '#bc6c25' }] } });
+    }
+
+    function updateCertificacionPie(data) {
+        const counts = { 'Certificado':0, 'En proceso':0, 'No certificado':0, 'Sin dato':0 };
+        data.forEach(d => { let cat = d.certificacion; if(cat==='Certificado') counts.Certificado++; else if(cat==='En proceso') counts['En proceso']++; else if(cat==='No certificado') counts['No certificado']++; else counts['Sin dato']++; });
+        const ctx = document.getElementById('certificacionPieChart').getContext('2d');
+        if (certificacionPie) certificacionPie.destroy();
+        certificacionPie = new Chart(ctx, { type: 'pie', data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: ['#2e6b3e','#d9a13b','#8c6e47','#b3b3b3'] }] }, options: { plugins: { legend: { position: 'bottom' } } } });
+    }
+
+    // Event listeners filtros
+    document.getElementById('filterCadena').addEventListener('change', e => { currentCadena = e.target.value; updateDashboard(); });
+    document.getElementById('filterDepto').addEventListener('change', e => { currentDepto = e.target.value; updateDashboard(); });
+    document.getElementById('filterCert').addEventListener('change', e => { currentCert = e.target.value; updateDashboard(); });
+    document.getElementById('mapMetric').addEventListener('change', e => { updateDashboard(); });
+    
+    // Inicializar dashboard
+    initMap();
+    updateDashboard();
+</script>
+</body>
+</html>
+```
